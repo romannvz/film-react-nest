@@ -38,7 +38,10 @@ export class FilmsModule {
               ? [PostgresFilmsRepository]
               : [MongoFilmsRepository]),
           ],
-          useFactory: (config: ConfigService, repo: any) => {
+          useFactory: (
+            config: ConfigService,
+            repo: PostgresFilmsRepository | MongoFilmsRepository,
+          ) => {
             return repo;
           },
         },
