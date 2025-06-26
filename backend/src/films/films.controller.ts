@@ -17,7 +17,7 @@ export class FilmsController {
   @Get(':id/schedule')
   async getSchedule(@Param('id') id: string) {
     const film = await this.filmsService.findById(id);
-    if (!film) throw new NotFoundException(`Фильм с ID ${id} не найден`);
+    if (!film) throw new NotFoundException(`Film with id ${id} not found`);
 
     return {
       total: film.schedule.length,

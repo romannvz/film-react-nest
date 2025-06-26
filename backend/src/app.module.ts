@@ -1,27 +1,42 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { ConfigModule } from '@nestjs/config';
 import * as path from 'node:path';
-import { MongooseModule } from '@nestjs/mongoose';
 import { FilmsModule } from './films/films.module';
-import { OrderModule } from './order/order.module';
-import { configProvider } from './app.config.provider';
+import { OrderModule } from './orders/orders.module';
+import { AppConfig, AppConfigModule } from './app.config.provider';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { FilmEntity } from './films/entities/film.entity';
+import { ScheduleEntity } from './films/entities/schedule.entity';
+import { MongooseModule } from '@nestjs/mongoose';
 
-@Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      cache: true,
-    }),
-    MongooseModule.forRoot(process.env.DATABASE_URL),
-    ServeStaticModule.forRoot({
-      rootPath: path.resolve(__dirname, '../public/content'),
-      serveRoot: '/content',
-    }),
-    FilmsModule,
-    OrderModule,
-  ],
-  controllers: [],
-  providers: [configProvider],
-})
-export class AppModule {}
+@Module({})
+export class AppModule {
+  static register(config: AppConfig): DynamicModule {
+    const ormModule =
+      config.database.driver === 'postgres'
+        ? TypeOrmModule.forRoot({
+            type: 'postgres',
+            host: config.database.postgres.host,
+            port: config.database.postgres.port,
+            username: config.database.postgres.user,
+            password: config.database.postgres.password,
+            database: config.database.postgres.db,
+            synchronize: false,
+            entities: [FilmEntity, ScheduleEntity],
+          })
+        : MongooseModule.forRoot(config.database.mongoUrl);
+    return {
+      module: AppModule,
+      imports: [
+        AppConfigModule,
+        ServeStaticModule.forRoot({
+          rootPath: path.resolve(__dirname, '../public/content'),
+          serveRoot: '/content',
+        }),
+        ormModule,
+        FilmsModule.registerAsync(config.database.driver),
+        OrderModule.registerAsync(config.database.driver),
+      ],
+    };
+  }
+}

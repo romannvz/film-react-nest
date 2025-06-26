@@ -11,7 +11,7 @@ import {
 export class OrderItemDto {
   @IsString()
   @IsNotEmpty()
-  film: string;
+  filmId: string;
 
   @IsString()
   @IsNotEmpty()
