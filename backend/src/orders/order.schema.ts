@@ -12,7 +12,7 @@ export class Order {
   session: string;
 
   @Prop({ type: [String], required: true })
-  seats: string[]; // ["1:1", "2:5"]
+  seats: string[];
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

@@ -1,21 +1,26 @@
-import { Injectable } from '@nestjs/common';
-import { FilmsRepository } from '../repository/films.repository';
+import { Injectable, Inject } from '@nestjs/common';
 import { CreateFilmDto } from './dto/film.dto';
-import { Film } from './film.schema';
+import {
+  FILMS_REPOSITORY_TOKEN,
+  IFilmsRepository,
+} from 'src/repository/interfaces/films-repository.interface';
 
 @Injectable()
 export class FilmsService {
-  constructor(private readonly filmsRepository: FilmsRepository) {}
+  constructor(
+    @Inject(FILMS_REPOSITORY_TOKEN)
+    private readonly filmsRepository: IFilmsRepository,
+  ) {}
 
-  async findAll(): Promise<Film[]> {
+  async findAll() {
     return this.filmsRepository.findAll();
   }
 
-  async findById(id: string): Promise<Film | null> {
+  async findById(id: string) {
     return this.filmsRepository.findById(id);
   }
 
-  async create(filmDto: CreateFilmDto): Promise<Film> {
+  async create(filmDto: CreateFilmDto) {
     return this.filmsRepository.create(filmDto);
   }
 }

@@ -2,7 +2,7 @@ import { IsString, IsNumber, IsInt } from 'class-validator';
 
 export class OrderResultDto {
   @IsString()
-  film: string;
+  filmId: string;
 
   @IsString()
   session: string;
