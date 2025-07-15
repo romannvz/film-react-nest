@@ -1,0 +1,23 @@
+# node
+node_modules
+npm-debug.log
+yarn.lock
+pnpm-lock.yaml
+
+# Vite  React  TS
+.vite
+.vscode
+dist
+src.ts
+src.tsx
+
+# system
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Env
+.env.
