@@ -6,14 +6,17 @@ pnpm-lock.yaml
 
 # Vite  React  TS
 .vite
-.vscode
+.cache
 dist
-src.ts
-src.tsx
+.vscode
+.idea
+.yarn
 
 # system
 .DS_Store
 Thumbs.db
+*.log
+npm-debug.log*
 
 # Git
 .git
@@ -21,3 +24,16 @@ Thumbs.db
 
 # Env
 .env.
+.env.*
+
+src/stories
+.storybook
+.template
+
+**/*.stories.ts
+**/*.stories.tsx
+**/*.stories.jsx
+**/*.stories.js
+
+Dockerfile
+bin/

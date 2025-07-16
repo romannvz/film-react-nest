@@ -1,88 +1,23 @@
+# === build stage ===
 FROM node:20-alpine AS build
 WORKDIR /app
-COPY . .
-RUN npm install && npm run build
 
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+RUN npm prune --omit=dev && npm cache clean --force
+
+# === prod stage ===
 FROM node:20-alpine AS prod
 WORKDIR /app
+
 COPY --from=build /app/dist ./dist
-COPY package*.json ./
-RUN npm install --omit=dev
-ENTRYPOINT ["node", "dist/main.js"]
+COPY --from=build /app/public ./public
+COPY --from=build /app/package*.json ./
+COPY --from=build /app/node_modules ./node_modules
 
-
-
-
-
-#яндекс код
-#FROM node:20-alpine
-# создание директории приложения
-#WORKDIR /usr/src/app/film #прописать верный путь
-# установка зависимостей
-# астериск ("*") по возможности скопирует оба файла: package.json и package-lock.json
-# тот же символ делает копирование опциональным, т. е. без файла сборка не упадёт
-#COPY package*.json ./
-# Флаг --omit=dev означает «не ставить devDependencies»
-# они не нужны в продакшен-окружении
-#RUN npm i --omit=dev
-# копируем исходный код
-#COPY . .
-
-#EXPOSE 3000
-#CMD [ "node", "index.js" ]
-
-
-#FROM node:20-alpine
-
-#WORKDIR /var/www/app #прописать путь
-
-# Копируем только файлы package.json и package-lock.json 
-# для установки зависимостей
-
-#COPY package*.json ./
-
-# Устанавливаем зависимости
-#RUN npm install
-
-# Теперь копируем все остальные файлы
-#COPY . .
-
-#RUN npm run build
-#RUN rm -rf ./src 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# С помощью директивы AS можно дать образу имя
-#FROM node:20-alpine AS builder
-#WORKDIR /var/www/app #прописать
-#COPY package*.json ./
-# Устанавливаем зависимости
-#RUN npm install
-# Копируем исходный код и собираем приложение
-#COPY . .
-#RUN npm run build
-
-#FROM node:20-alpine as production
-#WORKDIR /var/www/app #прописать
-# С помощью параметера --from указываем, что копировать нужно из образа builder
-# Копируем package.json и package-lock.json (потребуются для установки зависимостей)
-#COPY --from=builder /var/www/app/package*.json ./
-# Устанавливаем только зависимости, необходимые в продакшене
-# --omit=dev означает «пропустить dev-зависимости»
-#RUN yarn --prod
-# Копируем директорию со сборкой приложения
-#COPY --from=builder /var/www/app/dist ./dist/
-
-# Указываем команду для запуска приложения
-#ENTRYPOINT ["node", "./dist/main.js"]
+EXPOSE 3000
+CMD ["node", "dist/main"]

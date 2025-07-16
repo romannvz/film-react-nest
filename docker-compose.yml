@@ -1,71 +1,55 @@
-version: '3.9'
-
 services:
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: film_frontend
+    image: film_frontend:v1.0.0
+    depends_on:
+      - backend
+    env_file:
+      - ./frontend/.env
     ports:
       - "8080:80"
     networks:
-      - filmnet
+      - filmPublicNet
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: film_backend
+    image: film_backend:v1.0.0
     ports:
-      - "3001:3000"
+      - "3000:3000"
     depends_on:
       - postgres
     env_file:
       - ./backend/.env
     networks:
-      - filmnet
-
-  nginx-proxy:
-    image: nginx:alpine
-    container_name: film_nginx_proxy
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx-proxy/nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - frontend
-      - backend
-    networks:
-      - filmnet
-
+      - filmPublicNet
+      - filmServiceNet
 
   postgres:
     image: postgres:15-alpine
     container_name: film_postgres
     restart: always
+    env_file:
+      - ./backend/.env
     volumes:
       - pg_data:/var/lib/postgresql/data
-    env_file:
-      - ./backend/.env
-    networks:
-      - filmnet
-
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: film_pgadmin
-    restart: always
+      - ./backend/sql:/docker-entrypoint-initdb.d
     ports:
-      - "8081:80"
-    env_file:
-      - ./backend/.env
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
+      - "5432:5432"
     networks:
-      - filmnet
+      - filmServiceNet
 
 volumes:
   pg_data:
-  pgadmin_data:
+    name: film_pg_data
 
 networks:
-  filmnet:
+  filmPublicNet:
+    name: film_public_net
+  filmServiceNet:
+    name: film_service_net

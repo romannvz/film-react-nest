@@ -1,27 +1,19 @@
-# === Этап сборки фронта ===
+# === build frontend ===
 FROM node:20-alpine AS builder
-
 WORKDIR /app
-# 1️⃣ Копируем только package.json и lock-файл
+
 COPY package*.json ./
+RUN npm ci
 
-# 2️⃣ Устанавливаем зависимости
-RUN npm install
-
-# 3️⃣ Копируем остальной проект
 COPY . .
-
-# 3.1. Добавляем .env
-COPY .env .env
-
-# 4️⃣ Сборка
 RUN npm run build
 
-# === Этап nginx-сервера ===
+# === build nginx-server ===
 FROM nginx:1.25-alpine AS production
 
-# Копируем кастомный конфиг в nginx
-COPY nginx/film.conf /etc/nginx/conf.d/film.conf
+RUN rm /etc/nginx/conf.d/default.conf
 
-# Кладём собранные статики в специальную папку для проекта film
+COPY nginx/film.conf /etc/nginx/conf.d/film.conf
 COPY --from=builder /app/dist /usr/share/nginx/film/
+
+CMD ["nginx", "-g", "daemon off;"]
