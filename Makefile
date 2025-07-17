@@ -15,7 +15,7 @@ local-rebuild:
 	docker compose -f $(DOCKER_COMPOSE_LOCAL) --env-file $(ENV_LOCAL) build --no-cache
 
 local-start:
-	docker compose -f docker/local/docker-compose.yml up --build
+	docker compose -f $(DOCKER_COMPOSE_LOCAL) up --build
 
 local-logs:
 	docker compose -f $(DOCKER_COMPOSE_LOCAL) logs -f
@@ -38,7 +38,7 @@ prod-down:
 	docker compose -f $(DOCKER_COMPOSE_PROD) down
 
 prod-start:
-	docker compose -f docker/prod/docker-compose.yml up --build -d
+	docker compose -f $(DOCKER_COMPOSE_PROD) up --build -d
 
 prod-logs:
 	docker compose -f $(DOCKER_COMPOSE_PROD) logs -f
