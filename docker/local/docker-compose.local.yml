@@ -14,7 +14,7 @@ services:
     networks:
       - filmPublicNet
     volumes:
-      - ../../docker/local/nginx/film.conf:/etc/nginx/conf.d/film.conf:ro
+      - ../../docker/local/nginx/local.film.conf:/etc/nginx/conf.d/film.conf:ro
 
   backend:
     build: 
