@@ -1,0 +1,35 @@
+services:
+  frontend:
+    build:
+      context: ../../frontend
+      dockerfile: Dockerfile
+    container_name: filmFrontend
+    image: film_frontend:v1.0.0
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - postgres
+    env_file:
+      - ./.env.prod
+    networks:
+      - filmPublicNet
+    volumes:
+      - ../../docker/prod/nginx/film.conf:/etc/nginx/conf.d/film.conf:ro
+
+  backend:
+    build: 
+      context: ../../backend
+      dockerfile: Dockerfile
+    container_name: filmBackend
+    image: film_backend:v1.0.0
+    depends_on:
+      - postgres
+    env_file:
+      - ./.env.prod
+    networks:
+      - filmPublicNet
+
+networks:
+  filmPublicNet:
+    name: filmPublicNet

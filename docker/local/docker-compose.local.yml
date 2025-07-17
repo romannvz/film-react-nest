@@ -1,44 +1,45 @@
 services:
   frontend:
     build:
-      context: ./frontend
+      context: ../../frontend
       dockerfile: Dockerfile
-    container_name: film_frontend
-    image: film_frontend:v1.0.0
+    container_name: filmFrontend
+    ports:
+      - "5173:80"
     depends_on:
       - backend
+      - postgres
     env_file:
-      - ./frontend/.env
-    ports:
-      - "8080:80"
+      - ./.env.local
     networks:
       - filmPublicNet
+    volumes:
+      - ../../docker/local/nginx/film.conf:/etc/nginx/conf.d/film.conf:ro
 
   backend:
-    build:
-      context: ./backend
+    build: 
+      context: ../../backend
       dockerfile: Dockerfile
-    container_name: film_backend
-    image: film_backend:v1.0.0
+    container_name: filmBackend
     ports:
       - "3000:3000"
     depends_on:
       - postgres
     env_file:
-      - ./backend/.env
+      - ./.env.local
     networks:
       - filmPublicNet
       - filmServiceNet
 
   postgres:
+    container_name: filmPostgres
     image: postgres:15-alpine
-    container_name: film_postgres
     restart: always
     env_file:
-      - ./backend/.env
+      - ./.env.local
     volumes:
       - pg_data:/var/lib/postgresql/data
-      - ./backend/sql:/docker-entrypoint-initdb.d
+      - ../../backend/sql:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
     networks:
@@ -46,10 +47,10 @@ services:
 
 volumes:
   pg_data:
-    name: film_pg_data
+    name: filmPgData
 
 networks:
   filmPublicNet:
-    name: film_public_net
+    name: filmPublicNet
   filmServiceNet:
-    name: film_service_net
+    name: filmServiceNet

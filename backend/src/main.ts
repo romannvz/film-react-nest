@@ -11,7 +11,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule.register(appConfig));
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.setGlobalPrefix('api/afisha');
-  app.enableCors();
+  app.enableCors({
+    origin: [
+      'http://localhost:5173',
+      'https://front.romannvz.nomorepartiessbs.ru',
+    ],
+  });
   await app.listen(3000);
 }
 bootstrap();

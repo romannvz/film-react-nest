@@ -1,2 +1,27 @@
 node_modules
 .idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+build/
+dist/
+
+# Docker volumes
+**/postgres_data/
+**/.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDEs
+.vscode/
+.idea/
+
+# Production artifacts
+*.env.*
+!*.env.*.example

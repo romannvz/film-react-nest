@@ -9,11 +9,10 @@ COPY . .
 RUN npm run build
 
 # === build nginx-server ===
-FROM nginx:1.25-alpine AS production
+FROM nginx:1.25-alpine AS prod
 
 RUN rm /etc/nginx/conf.d/default.conf
 
-COPY nginx/film.conf /etc/nginx/conf.d/film.conf
 COPY --from=builder /app/dist /usr/share/nginx/film/
 
 CMD ["nginx", "-g", "daemon off;"]
