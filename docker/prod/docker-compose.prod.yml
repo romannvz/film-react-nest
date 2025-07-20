@@ -27,6 +27,8 @@ services:
       - postgres
     env_file:
       - ./.env.prod
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - filmPublicNet
 
