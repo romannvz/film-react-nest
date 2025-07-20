@@ -3,13 +3,15 @@ services:
     build:
       context: ../../frontend
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+        VITE_CDN_URL: ${VITE_CDN_URL}
     container_name: filmFrontend
     image: film_frontend:v1.0.0
     ports:
       - "80:80"
     depends_on:
       - backend
-      - postgres
     env_file:
       - ./.env.prod
     networks:
@@ -18,13 +20,11 @@ services:
       - ../../docker/prod/nginx/prod.film.conf:/etc/nginx/conf.d/film.conf:ro
 
   backend:
-    build: 
+    build:
       context: ../../backend
       dockerfile: Dockerfile
     container_name: filmBackend
     image: film_backend:v1.0.0
-    depends_on:
-      - postgres
     env_file:
       - ./.env.prod
     extra_hosts:

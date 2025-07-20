@@ -1,7 +1,7 @@
 DOCKER_COMPOSE_LOCAL=docker/local/docker-compose.local.yml
 DOCKER_COMPOSE_PROD=docker/prod/docker-compose.prod.yml
 ENV_LOCAL=docker/local/.env.local
-ENV_PROD=docker/local/.env.prod
+ENV_PROD=docker/prod/.env.prod
 
 # === local shortcuts ===
 
