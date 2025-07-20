@@ -5,8 +5,6 @@ services:
       dockerfile: frontend/Dockerfile
     container_name: filmFrontend
     image: film_frontend:v1.0.0
-    ports:
-      - "8080:80"
     depends_on:
       - backend
     env_file:
@@ -14,8 +12,6 @@ services:
     networks:
       - filmPublicNet
     volumes:
-      - ./nginx/prod.film.conf:/etc/nginx/conf.d/film.conf:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
       - ../../docker/prod/.env.prod:/env.prod:ro
 
   backend:
@@ -24,14 +20,26 @@ services:
       dockerfile: Dockerfile
     container_name: filmBackend
     image: film_backend:v1.0.0
-    ports:
-    - "3000:3000"
     env_file:
       - ./.env.prod
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
       - filmPublicNet
+
+  nginx:
+    image: nginx:alpine
+    container_name: filmNginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/prod.film.conf:/etc/nginx/conf.d/film.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ../../frontend/build:/usr/share/nginx/film:ro
+    depends_on:
+      - frontend
+      - backend
 
 networks:
   filmPublicNet:
