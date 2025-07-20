@@ -2,15 +2,12 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-ARG VITE_API_URL
-ARG VITE_CDN_URL
-ENV VITE_API_URL=$VITE_API_URL
-ENV VITE_CDN_URL=$VITE_CDN_URL
-
-COPY package*.json ./
+COPY frontend/package*.json ./
 RUN npm ci
 
-COPY . .
+COPY frontend/ .
+COPY docker/prod/.env.prod .env
+
 RUN npm run build
 
 # === build nginx-server ===

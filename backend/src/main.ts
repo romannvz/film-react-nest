@@ -13,8 +13,9 @@ async function bootstrap() {
   app.setGlobalPrefix('api/afisha');
   app.enableCors({
     origin: [
-      'http://localhost:5173',
-      'https://front.romannvz.nomorepartiessbs.ru',
+      'http://localhost:5173/',
+      'https://front.romannvz.nomorepartiessbs.ru/',
+      'http://front.romannvz.nomorepartiessbs.ru/',
     ],
   });
   await app.listen(3000, '0.0.0.0');
