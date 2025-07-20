@@ -12,6 +12,7 @@ services:
     networks:
       - filmPublicNet
     volumes:
+      - frontend-dist:/app/dist
       - ../../docker/prod/.env.prod:/env.prod:ro
 
   backend:
@@ -34,13 +35,18 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/prod.film.conf:/etc/nginx/conf.d/film.conf:ro
+      - ./nginx/prod.film.conf:/etc/nginx/conf.d/film.conf
       - /etc/letsencrypt:/etc/letsencrypt:ro
-      - ../../frontend/build:/usr/share/nginx/film:ro
+      - frontend-dist:/usr/share/nginx/film
     depends_on:
       - frontend
       - backend
+    networks:
+      - filmPublicNet
 
 networks:
   filmPublicNet:
     name: filmPublicNet
+
+volumes:
+  frontend-dist:
