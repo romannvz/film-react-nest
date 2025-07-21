@@ -1,0 +1,52 @@
+services:
+  frontend:
+    build:
+      context: ../../
+      dockerfile: frontend/Dockerfile
+    container_name: filmFrontend
+    image: ghcr.io/romannvz/film-frontend:latest
+    depends_on:
+      - backend
+    env_file:
+      - ./.env.prod
+    networks:
+      - filmPublicNet
+    volumes:
+      - frontend-dist:/app/dist
+      - ../../docker/prod/.env.prod:/env.prod:ro
+
+  backend:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+    container_name: filmBackend
+    image: ghcr.io/romannvz/film-backend:latest
+    env_file:
+      - ./.env.prod
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - filmPublicNet
+
+  nginx:
+    image: nginx:alpine
+    container_name: filmNginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/prod.film.conf:/etc/nginx/conf.d/film.conf
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - frontend-dist:/usr/share/nginx/film
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - filmPublicNet
+
+networks:
+  filmPublicNet:
+    name: filmPublicNet
+
+volumes:
+  frontend-dist:

@@ -1,73 +1,83 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# FILM! *Backend — Production Setup*
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Этот файл описывает специфичные шаги для развёртывания ***backend*** в продакшн‑режиме.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Предварительные требования
+- *PostgreSQL* установлен и запущен **на хосте** (не в *Docker*).  
+- Конфигурация *PostgreSQL*:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+  1. **`postgresql.conf`**  
 
-## Installation
+     ```bash
+     listen_addresses = '*'  
+     port = 5432
+     ```
+  2. **`pg_hba.conf`**  
+
+     ```bash
+     # разрешить подключения из Docker-подсетей
+     host  all  all  172.0.0.0/(8||16)  md5
+     ```
+
+- Перезапустить *PostgreSQL*:  
+  ```bash
+  sudo systemctl restart postgresql
+  ```
+
+## Переменные окружения (*.env.prod*)
+Создать *docker/prod/.env.prod* со следующими ключами:
+```bash
+VITE_API_URL=https://yourBackendDomain.name/api/afisha
+VITE_CDN_URL=https://yourBackendDomain.name/content/afisha
+
+LOGGER_MODE=dev # dev | json | tskv
+
+DATABASE_DRIVER=postgres
+POSTGRES_HOST=host.docker.internal   # или 127.0.0.1, если network_mode=host
+POSTGRES_PORT=5432
+POSTGRES_DB=yourDbName
+POSTGRES_USER=yourDbUser
+POSTGRES_PASSWORD=yourDbUserPswrd
+```
+## Настройка конфигураций
+
+Создать файл *docker/prod/nginx/prod.film.conf*:
 
 ```bash
-$ npm install
+server {
+    listen 80;
+    server_name yourFrontendDomain.name;
+    ...
+}
+
+server {
+    listen 80;
+    server_name yourBackendDomain.name;
+    ...
+}
 ```
+## *HTTPS* и домены
 
-## Running the app
-
+- Настроить *A*-записи доменов на *IP* виртуальной машины;
+- Установить *certbot* и выполнить:
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+sudo certbot --nginx -d yourFrontendDomain.name -d yourBackendDomain.name
 ```
+*Let's Encrypt* автоматически настроит редирект на *HTTPS*.
 
-## Test
+## Запуск
 
+В корне проекта:
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+make prod-start
 ```
 
-## Support
+Этот *Makefile* вызывает
+```bash
+docker-compose -f docker/prod/docker-compose.prod.yml up --build -d
+```
+---
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+После этого бэкенд автоматически подключится к внешнему *Postgres* и будет доступен внутри *Docker*‑сети для *Nginx*.

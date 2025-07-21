@@ -1,0 +1,22 @@
+# node
+node_modules
+dist
+npm-debug.log*
+*.log
+
+# configs
+.env
+Dockerfile
+
+# IDE
+.vscode
+.idea
+.yarn
+.cache
+
+# git
+.git
+.gitignore
+
+# test
+test/

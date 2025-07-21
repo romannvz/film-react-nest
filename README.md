@@ -1,36 +1,93 @@
 # FILM!
 
+Приложение на стеке ***React*** + ***NestJS*** + ***PostgreSQL*** с использованием *Docker* и двух окружений: **локального** и **продакшн**.
+
+## Стек
+
+- **Frontend**: *React* + *Vite*
+- **Backend**: *NestJS* + *TypeORM*
+- **Database**: *PostgreSQL*
+- **Reverse Proxy**: *Nginx*
+- **CI/CD**: *Docker*, *Docker Compose*
+- **SSL**: *Let's Encrypt (prod only)*
+
+## Демо
+
+Продакшн: [front.romannvz.nomorepartiessbs.ru](https://front.romannvz.nomorepartiessbs.ru)
+
+---
+
 ## Установка
 
-### MongoDB
+### 1. Клонировать и установить зависимости
 
-Установите MongoDB скачав дистрибутив с официального сайта или с помощью пакетного менеджера вашей ОС. Также можно воспользоваться Docker (см. ветку `feat/docker`.
+```bash
+git clone https://github.com/romannvz/film-react-nest.git
+cd film-react-nest
+cd frontend && npm install && cd ../backend && npm install && cd ..
+```
 
-Выполните скрипт `test/mongodb_initial_stub.js` в консоли `mongo`.
+### 2. Локальная разработка
 
-### Бэкенд
+```bash
+Make-команды для удобного использования:
 
-Перейдите в папку с исходным кодом бэкенда
+make local-up             # поднять все сервисы
+make local-down           # остановить контейнеры
+make local-rebuild        # пересобрать и запустить заново
+make local-start          # собрать и запустить
+make local-logs           # логи всех сервисов
 
-`cd backend`
+make local-shell-backend  # shell контейнера backend
+make local-shell-frontend # shell контейнера frontend
+```
 
-Установите зависимости (точно такие же, как в package-lock.json) помощью команд
+- Скопировать *docker/local/.env.local.example* → *docker/local/.env.local*;
+- Выполнить:
+```bash
+make local-start   # или make local-up
+```
+#### После запуска
 
-`npm ci` или `yarn install --frozen-lockfile`
+- 🌐 http://localhost:5173/ — *frontend*  
+- 🌐 http://localhost:3000/api/afisha/ — *API*
 
-Создайте `.env` файл из примера `.env.example`, в нём укажите:
+---
 
-* `DATABASE_DRIVER` - тип драйвера СУБД - в нашем случае это `mongodb` 
-* `DATABASE_URL` - адрес СУБД MongoDB, например `mongodb://127.0.0.1:27017/practicum`.  
+### 3. Продакшн 
 
-MongoDB должна быть установлена и запущена.
+```bash
+Make-команды для удобного использования:
 
-Запустите бэкенд:
+make prod-build     # собрать образы
+make prod-up        # запустить прод
+make prod-down      # остановить прод
+make prod-start     # собрать и запустить
+```
 
-`npm start:debug`
+- Скопировать *docker/prod/.env.prod.example* → *docker/local/.env.prod*;
+- При необходимости заранее поднять или удостовериться в работе *PostgreSQL* на хосте (см. *backend/README.md*)
+- Выполнить:
+```bash
+make prod-start
+```
+#### После запуска
 
-Для проверки отправьте тестовый запрос с помощью Postman или `curl`.
+- 🌐 https://yourFrontendDomain.name/ — *frontend*
+- 🌐 https://yourBackendDomain.name/api/afisha/ — *API*
 
+---
 
+## Структура проекта
 
-
+```
+film-react-nest/
+├── backend/               # NestJS backend
+├── frontend/              # React + Vite frontend
+├── docker/                # config-директория
+│   ├── local/             # dev-compose, nginx, .env.local.example
+│   └── prod/              # prod-compose, nginx, .env.prod.example
+├── Makefile               # удобные команды
+└── README.md
+```
+---
