@@ -29,15 +29,17 @@
 ## Переменные окружения (*.env.prod*)
 Создать *docker/prod/.env.prod* со следующими ключами:
 ```bash
+VITE_API_URL=https://yourBackendDomain.name/api/afisha
+VITE_CDN_URL=https://yourBackendDomain.name/content/afisha
+
+LOGGER_MODE=dev # dev | json | tskv
+
 DATABASE_DRIVER=postgres
 POSTGRES_HOST=host.docker.internal   # или 127.0.0.1, если network_mode=host
 POSTGRES_PORT=5432
 POSTGRES_DB=yourDbName
 POSTGRES_USER=yourDbUser
 POSTGRES_PASSWORD=yourDbUserPswrd
-
-VITE_API_URL=https://yourBackendDomain.name/api/afisha
-VITE_CDN_URL=https://yourBackendDomain.name/content/afisha
 ```
 ## Настройка конфигураций
 
