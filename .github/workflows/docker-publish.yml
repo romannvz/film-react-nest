@@ -35,9 +35,7 @@ jobs:
           file: frontend/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/film-frontend:latest
-            ghcr.io/${{ github.repository_owner }}/film-frontend:${{ github.sha }}
+          tags: ghcr.io/${{ github.repository_owner }}/film-frontend:latest
 
       - name: Build and push backend image
         uses: docker/build-push-action@v4
@@ -46,6 +44,4 @@ jobs:
           file: Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/film-backend:latest
-            ghcr.io/${{ github.repository_owner }}/film-backend:${{ github.sha }}
+          tags: ghcr.io/${{ github.repository_owner }}/film-backend:latest
