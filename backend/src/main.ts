@@ -8,7 +8,9 @@ import { configProvider } from './app.config.provider';
 async function bootstrap() {
   const configService = new ConfigService();
   const appConfig = configProvider.useFactory(configService);
-  const app = await NestFactory.create(AppModule.register(appConfig));
+  const app = await NestFactory.create(AppModule.register(appConfig), {
+    bufferLogs: true,
+  });
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.setGlobalPrefix('api/afisha');
   app.enableCors({
@@ -18,6 +20,7 @@ async function bootstrap() {
       'http://front.romannvz.nomorepartiessbs.ru/',
     ],
   });
+  app.useLogger(appConfig.logger?.instance || console);
   await app.listen(3000, '0.0.0.0');
 }
 bootstrap();

@@ -1,5 +1,9 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Module } from '@nestjs/common';
+import { LoggerService } from '@nestjs/common';
+import { DevLogger } from './loggers/dev.logger';
+import { JsonLogger } from './loggers/json.logger';
+import { TskvLogger } from './loggers/tskv.logger';
 
 export const configProvider = {
   imports: [ConfigModule.forRoot()],
@@ -19,7 +23,15 @@ export const configProvider = {
       },
       mongoUrl: config.get<string>('DATABASE_URL'),
     };
-    return { database };
+    const loggerMode =
+      config.get<'dev' | 'json' | 'tskv'>('LOGGER_MODE') || 'dev';
+    const loggerInstance: LoggerService =
+      loggerMode === 'json'
+        ? new JsonLogger()
+        : loggerMode === 'tskv'
+          ? new TskvLogger()
+          : new DevLogger();
+    return { database, logger: { mode: loggerMode, instance: loggerInstance } };
   },
 };
 
@@ -30,6 +42,7 @@ const AppConfigProvider = {
 
 export interface AppConfig {
   database: AppConfigDatabase;
+  logger: AppConfigLogger;
 }
 
 export interface AppConfigDatabase {
@@ -42,6 +55,11 @@ export interface AppConfigDatabase {
     db: string;
   };
   mongoUrl?: string;
+}
+
+export interface AppConfigLogger {
+  mode: 'dev' | 'json' | 'tskv';
+  instance: LoggerService;
 }
 
 @Module({
