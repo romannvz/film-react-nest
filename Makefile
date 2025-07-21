@@ -1,24 +1,47 @@
-DOCKER_COMPOSE_LOCAL=docker/local/docker-compose.local.yml
-DOCKER_COMPOSE_PROD=docker/prod/docker-compose.prod.yml
-ENV_LOCAL=docker/local/.env.local
-ENV_PROD=docker/prod/.env.prod
+DOCKER_COMPOSE_local = docker/local/docker-compose.local.yml
+DOCKER_COMPOSE_prod  = docker/prod/docker-compose.prod.yml
+ENV_local             = docker/local/.env.local
+ENV_prod              = docker/prod/.env.prod
+ENV_LINK              = frontend/.env
 
-# === local shortcuts ===
+# routes by env
+DC      = $(DOCKER_COMPOSE_$(ENV))
+ENVFILE = $(ENV_$(ENV))
 
+# all local and prod targets are virtual
+.PHONY: link-env start local-% prod-%
+
+# restore envfile by simlink
+link-env:
+	@echo "🔗 Linking $(ENVFILE) → $(ENV_LINK)"
+	ln -snf $(ENVFILE) $(ENV_LINK)
+
+local-%: ENV = local
+prod-%:  ENV = prod
+
+local-%: link-env
+prod-%:  link-env
+
+start:
+	docker-compose -f $(DC) up --build
+
+local-start: start
+prod-start:  start
+
+# ────────────────────────────────────────────────────────────────────────────
+# local shortcuts
+# ────────────────────────────────────────────────────────────────────────────
 local-up:
-	docker compose -f $(DOCKER_COMPOSE_LOCAL) --env-file $(ENV_LOCAL) up -d --build
+	docker-compose -f $(DC) --env-file $(ENVFILE) up -d --build
 
 local-down:
-	docker compose -f $(DOCKER_COMPOSE_LOCAL) down
+	docker-compose -f $(DC) down
 
 local-rebuild:
-	docker compose -f $(DOCKER_COMPOSE_LOCAL) --env-file $(ENV_LOCAL) build --no-cache
-
-local-start:
-	docker compose -f $(DOCKER_COMPOSE_LOCAL) up --build
+	docker-compose -f $(DC) --env-file $(ENVFILE) build --no-cache
 
 local-logs:
-	docker compose -f $(DOCKER_COMPOSE_LOCAL) logs -f
+	docker-compose -f $(DC) logs -f
 
 local-shell-frontend:
 	docker exec -it filmFrontend sh
@@ -26,22 +49,20 @@ local-shell-frontend:
 local-shell-backend:
 	docker exec -it filmBackend sh
 
-# === prod shortcuts ===
-
+# ────────────────────────────────────────────────────────────────────────────
+# prod shortcuts
+# ────────────────────────────────────────────────────────────────────────────
 prod-build:
-	docker compose -f $(DOCKER_COMPOSE_PROD) --env-file $(ENV_PROD) build
+	docker-compose -f $(DC) --env-file $(ENVFILE) build
 
 prod-up:
-	docker compose -f $(DOCKER_COMPOSE_PROD) --env-file $(ENV_PROD) up -d
+	docker-compose -f $(DC) --env-file $(ENVFILE) up -d
 
 prod-down:
-	docker compose -f $(DOCKER_COMPOSE_PROD) down
-
-prod-start:
-	docker compose -f $(DOCKER_COMPOSE_PROD) up --build -d
+	docker-compose -f $(DC) down
 
 prod-logs:
-	docker compose -f $(DOCKER_COMPOSE_PROD) logs -f
+	docker-compose -f $(DC) logs -f
 
 prod-shell-frontend:
 	docker exec -it filmFrontend sh

@@ -1,20 +1,29 @@
 services:
-  frontend:
+  frontend-build:
     build:
-      context: ../../frontend
-      dockerfile: Dockerfile
-    container_name: filmFrontend
-    ports:
-      - "5173:80"
-    depends_on:
-      - backend
-      - postgres
+      context: ../../
+      dockerfile: frontend/Dockerfile
+      target: builder
+    container_name: filmFrontendBuilder
+    volumes:
+      - frontend-build-dist:/app/dist:ro
     env_file:
       - ./.env.local
     networks:
       - filmPublicNet
+
+  frontend:
+    image: nginx:alpine
+    container_name: filmFrontend
+    depends_on:
+      - frontend-build
+    ports:
+      - "5173:80"
     volumes:
-      - ../../docker/local/nginx/local.film.conf:/etc/nginx/conf.d/film.conf:ro
+      - frontend-build-dist:/usr/share/nginx/html:ro
+      - ../../docker/local/nginx/local.film.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - filmPublicNet
 
   backend:
     build: 
@@ -48,6 +57,7 @@ services:
 volumes:
   pg_data:
     name: filmPgData
+  frontend-build-dist:
 
 networks:
   filmPublicNet:
