@@ -71,37 +71,7 @@ make prod-start
 
 - 🌐 https://yourFrontendDomain.name/ — *frontend*
 - 🌐 https://yourBackendDomain.name/api/afisha/ — *API*
-<!-- #### 4.1. Настройка конфигураций
 
-Создать файл `docker/prod/nginx/prod.film.conf` на основе `docker/prod/nginx/prod.film.conf.example`:
-
-```bash
-server {
-    listen 80;
-    server_name yourFrontendDomain.name;
-    ...
-}
-
-server {
-    listen 80;
-    server_name yourBackendDomain.name;
-    ...
-}
-```
-
-
-
-#### 4.3. HTTPS и домены
-
-1. Настроить A-записи доменов на IP виртуальной машины  
-2. Запустить `make prod-start`  
-3. Установить certbot и выполнить:
-
-```bash
-sudo certbot --nginx -d yourFrontendDomain.name -d yourBackendDomain.name
-```
-
-Let's Encrypt автоматически настроит редирект на HTTPS. -->
 ---
 
 ## Структура проекта
